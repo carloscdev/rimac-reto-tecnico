@@ -1,0 +1,118 @@
+openapi: 3.0.4
+info:
+  title: Rimac API
+  description: |
+    API para obtener datos de personajes de Star Wars y del clima.
+    Este servicio permite consultar la información de personajes a través de un ID, así como consultar el clima de diferentes ciudades.
+  version: 1.0.0
+
+servers:
+  - url: https://5s5xn679k2.execute-api.us-east-1.amazonaws.com/dev
+    description: Rimac API server
+
+tags:
+  - name: fusionados
+    description: Endpoint para consultar datos de Star Wars y clima.
+  - name: historial
+    description: Endpoint para acceder a un historial de eventos.
+
+paths:
+  /fusionados:
+    get:
+      tags:
+        - fusionados
+      summary: Obtener datos de un personaje de Star Wars y del clima.
+      description: |
+        Este endpoint obtiene información de un personaje de Star Wars
+        y del clima en una ciudad aleatoria.
+      operationId: getFusionadosData
+      parameters:
+        - in: query
+          name: character
+          required: false
+          schema:
+            type: integer
+            description: ID del personaje de Star Wars.
+            example: 1
+      responses:
+        '200':
+          description: Datos obtenidos correctamente.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  starWars:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: Luke Skywalker
+                      gender:
+                        type: string
+                        example: male
+                      birth_year:
+                        type: string
+                        example: '19BBY'
+                      height:
+                        type: number
+                        example: 1.72
+                  weather:
+                    type: object
+                    properties:
+                      description:
+                        type: string
+                        example: clear sky
+                      temp:
+                        type: number
+                        example: 25
+        '400':
+          description: Parámetro de consulta no válido o faltante.
+        '500':
+          description: Error interno del servidor.
+
+  /historial:
+    get:
+      tags:
+        - historial
+      summary: Obtener el historial de eventos.
+      description: |
+        Este endpoint devuelve el historial de eventos almacenados en la base de datos.
+      operationId: getHistorial
+      parameters:
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            description: Límite de elementos en la lista
+            example: 3
+        - in: query
+          name: lastKey
+          required: false
+          schema:
+            type: integer
+            description: Último elemento en la lista
+            example: fusion-3
+      responses:
+        '200':
+          description: Historial de eventos obtenido correctamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    eventId:
+                      type: integer
+                      example: 1
+                    eventDescription:
+                      type: string
+                      example: "Se ha registrado una nueva consulta."
+                    timestamp:
+                      type: string
+                      format: date-time
+                      example: "2025-05-09T12:00:00Z"
+        '500':
+          description: Error interno del servidor.

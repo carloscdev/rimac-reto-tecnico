@@ -1,8 +1,8 @@
-const WEATHER_API_URL = process.env.WEATHER_API_URL;
-const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
+import { config } from '../config';
+
 
 export const getWeatherData = async (city: string) => {
-  const url = `${WEATHER_API_URL}?q=${encodeURIComponent(city)}&appid=${WEATHER_API_KEY}`;
+  const url = `${config.WEATHER_API_URL}?q=${city}&appid=${config.WEATHER_API_KEY}`;
 
   const response = await fetch(url);
 

@@ -1,7 +1,7 @@
-const SWAPI_URL = process.env.SWAPI_URL;
+import { config } from '../config';
 
-export const getStarWarsData = async (characterId: string) => {
-  const response = await fetch(`${SWAPI_URL}/people/${characterId}`);
+export const getStarWarsData = async (characterId: number) => {
+  const response = await fetch(`${config.SWAPI_URL}/people/${characterId}`);
 
   if (!response.ok) {
     throw new Error('Error al obtener los datos de Star Wars API');

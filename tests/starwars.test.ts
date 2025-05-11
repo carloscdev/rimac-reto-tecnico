@@ -4,7 +4,6 @@ global.fetch = jest.fn();
 
 describe('getStarWarsData', () => {
   it('debería obtener los datos correctamente de la API de Star Wars', async () => {
-    // Simulando la respuesta de la API
     const mockResponse = {
       ok: true,
       json: async () => ({

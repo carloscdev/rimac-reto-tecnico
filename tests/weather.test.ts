@@ -1,4 +1,3 @@
-// tests/weather.test.ts
 import { getWeatherData } from '../src/services/weather.service';
 
 describe('getWeatherData', () => {

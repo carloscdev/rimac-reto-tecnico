@@ -37,6 +37,13 @@ functions:
           path: historial
           method: get
           cors: true
+  almacenar:
+    handler: src/handlers/almacenar.almacenar
+    events:
+      - http:
+          path: almacenar
+          method: post
+          cors: true
 
 resources:
   Resources:

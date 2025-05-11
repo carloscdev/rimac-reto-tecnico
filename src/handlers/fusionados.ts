@@ -3,21 +3,28 @@ import { v4 as uuidv4 } from 'uuid';
 import { STATUS_CODE } from '../config/constants';
 import { getStarWarsData } from '../services/starwars.service';
 import { getWeatherData } from '../services/weather.service';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { config } from '../config';
-import { getCharacterId, getRandomCity } from './utils/fusionados.util';
 import { getCommandDynamo, putCommandDynamo } from '../lib/dynamo.client';
 import { validarToken } from '../utils/validateToken';
+import Joi from 'joi';
+import { getRandomCity } from '../utils/cities';
 
-const client = new DynamoDBClient({});
-const dynamoDb = DynamoDBDocumentClient.from(client);
+const schema = Joi.object({
+  characterId: Joi.number().required()
+});
 
 export const fusionados: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
   try {
     const token = event.headers.Authorization?.split(' ')[1];
     validarToken(token);
-    const characterId = getCharacterId(event);
+    const characterId = event.queryStringParameters?.character ?? '1';
+    const { error } = schema.validate({ characterId });
+    if (error) {
+      return {
+        statusCode: STATUS_CODE.BAD_REQUEST,
+        body: JSON.stringify({ error: error.details[0].message }),
+      };
+    }
 
     const cacheKey = `fusion-${characterId}`;
     const now = Date.now();
@@ -29,14 +36,18 @@ export const fusionados: APIGatewayProxyHandler = async (event): Promise<APIGate
 
     if (cached.Item && now - cached.Item.timestamp < config.CACHE_TTL * 1000) {
       console.log('Datos desde caché');
+      const cachedData = {
+        ...cached.Item.data,
+        isCached: true,
+      };
       return {
         statusCode: STATUS_CODE.OK,
-        body: JSON.stringify(cached.Item.data),
+        body: JSON.stringify(cachedData),
       };
     }
 
     const randomCity = getRandomCity();
-    const starWarsData = await getStarWarsData(characterId);
+    const starWarsData = await getStarWarsData(parseInt(characterId));
     const weatherData = await getWeatherData(randomCity);
 
     const fusionData = {
@@ -67,15 +78,21 @@ export const fusionados: APIGatewayProxyHandler = async (event): Promise<APIGate
       Item: dataToStore,
     });
 
+    const showDataToStore = {
+      ...fusionData,
+      isCached: false,
+    };
+
     return {
       statusCode: STATUS_CODE.OK,
-      body: JSON.stringify(fusionData),
+      body: JSON.stringify(showDataToStore),
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error al fusionar datos:', error);
-    const message = error instanceof Error ? error.message : 'Error al fusionar datos';
+    const message = error.message ?? 'Error al fusionar datos';
+    const statusCode = error.statusCode ?? STATUS_CODE.INTERNAL_SERVER_ERROR;
     return {
-      statusCode: STATUS_CODE.INTERNAL_SERVER_ERROR,
+      statusCode,
       body: JSON.stringify({ message }),
     };
   }

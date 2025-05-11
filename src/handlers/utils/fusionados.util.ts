@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
-import { CITIES } from '../../config/constants';
+
 
 export const getCharacterId = (event: APIGatewayProxyEvent): number => {
   const characterId = event.queryStringParameters?.character ?? '1';
@@ -12,6 +12,3 @@ export const getCharacterId = (event: APIGatewayProxyEvent): number => {
   return characterIdNum;
 };
 
-export const getRandomCity = (): string => {
-  return  CITIES[Math.floor(Math.random() * CITIES.length)]
-};

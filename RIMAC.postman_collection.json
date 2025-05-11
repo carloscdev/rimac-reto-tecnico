@@ -1,0 +1,105 @@
+{
+	"info": {
+		"_postman_id": "f7a8d4c2-d73c-4a60-88df-aca546b86e2a",
+		"name": "RIMAC",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25188925"
+	},
+	"item": [
+		{
+			"name": "Fusionados",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{HOST}}/fusionados?character=80",
+					"host": [
+						"{{HOST}}"
+					],
+					"path": [
+						"fusionados"
+					],
+					"query": [
+						{
+							"key": "character",
+							"value": "80",
+							"description": "1 to 83"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Historial",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{HOST}}/historial?limit=3&lastKey=fusion-2",
+					"host": [
+						"{{HOST}}"
+					],
+					"path": [
+						"historial"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "3"
+						},
+						{
+							"key": "lastKey",
+							"value": "fusion-2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Almacenar",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"character\": {\r\n        \"eye_color\": \"black\",\r\n        \"gender\": \"male\",\r\n        \"skin_color\": \"fair\",\r\n        \"name\": \"Prueba 2\",\r\n        \"birth_year\": \"8888\",\r\n        \"hair_color\": \"black\",\r\n        \"height\": 170\r\n    },\r\n    \"planet\": {\r\n        \"weather\": \"clouds\",\r\n        \"temperature\": 286.55\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{HOST}}/almacenar",
+					"host": [
+						"{{HOST}}"
+					],
+					"path": [
+						"almacenar"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

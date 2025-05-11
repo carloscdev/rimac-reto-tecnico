@@ -3,6 +3,12 @@ import { STATUS_CODE } from '../config/constants';
 import { config } from '../config';
 import { scanCommandDynamo } from '../lib/dynamo.client';
 import { validarToken } from '../utils/validateToken';
+import Joi from 'joi';
+
+const schema = Joi.object({
+  limit: Joi.number().integer().min(1).max(10).default(3),
+  lastKey: Joi.string().optional()
+});
 
 
 export const historial: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
@@ -10,8 +16,16 @@ export const historial: APIGatewayProxyHandler = async (event): Promise<APIGatew
     const token = event.headers.Authorization?.split(' ')[1];
     validarToken(token);
 
-    const limit = parseInt(event.queryStringParameters?.limit ?? '10');
-    const lastKey = event.queryStringParameters?.lastKey;
+    const { error, value } = schema.validate(event.queryStringParameters);
+
+    if (error) {
+      return {
+        statusCode: STATUS_CODE.BAD_REQUEST,
+        body: JSON.stringify({ error: error.details[0].message }),
+      };
+    }
+
+    const { limit, lastKey } = value;
 
     const scanParams: any = {
       TableName: config.DYNAMODB_TABLE,
@@ -38,11 +52,12 @@ export const historial: APIGatewayProxyHandler = async (event): Promise<APIGatew
         lastKey: result.LastEvaluatedKey?.cacheKey ?? null,
       }),
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error al obtener historial:', error);
-    const message = error instanceof Error ? error.message : 'Error al obtener historial';
+    const message = error.message ?? 'Error al obtener historial';
+    const statusCode = error.statusCode ?? STATUS_CODE.INTERNAL_SERVER_ERROR;
     return {
-      statusCode: STATUS_CODE.INTERNAL_SERVER_ERROR,
+      statusCode,
       body: JSON.stringify({ message }),
     };
   }

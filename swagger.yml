@@ -28,6 +28,13 @@ paths:
       operationId: getFusionadosData
       parameters:
         - in: query
+          name: token
+          required: true
+          schema:
+            type: string
+            description: Token JWT
+            example: xxx
+        - in: query
           name: character
           required: false
           schema:
@@ -80,6 +87,13 @@ paths:
         Este endpoint devuelve el historial de eventos almacenados en la base de datos.
       operationId: getHistorial
       parameters:
+        - in: query
+          name: token
+          required: true
+          schema:
+            type: string
+            description: Token JWT
+            example: xxx
         - in: query
           name: limit
           required: false

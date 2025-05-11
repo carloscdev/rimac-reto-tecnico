@@ -8,12 +8,15 @@ import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { config } from '../config';
 import { getCharacterId, getRandomCity } from './utils/fusionados.util';
 import { getCommandDynamo, putCommandDynamo } from '../lib/dynamo.client';
+import { validarToken } from '../utils/validateToken';
 
 const client = new DynamoDBClient({});
 const dynamoDb = DynamoDBDocumentClient.from(client);
 
 export const fusionados: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
   try {
+    const token = event.headers.Authorization?.split(' ')[1];
+    validarToken(token);
     const characterId = getCharacterId(event);
 
     const cacheKey = `fusion-${characterId}`;
@@ -70,9 +73,10 @@ export const fusionados: APIGatewayProxyHandler = async (event): Promise<APIGate
     };
   } catch (error) {
     console.error('Error al fusionar datos:', error);
+    const message = error instanceof Error ? error.message : 'Error al fusionar datos';
     return {
       statusCode: STATUS_CODE.INTERNAL_SERVER_ERROR,
-      body: JSON.stringify({ message: 'Error al obtener los datos' }),
+      body: JSON.stringify({ message }),
     };
   }
 };

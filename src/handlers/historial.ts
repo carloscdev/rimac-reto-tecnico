@@ -2,10 +2,13 @@ import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
 import { STATUS_CODE } from '../config/constants';
 import { config } from '../config';
 import { scanCommandDynamo } from '../lib/dynamo.client';
+import { validarToken } from '../utils/validateToken';
 
 
 export const historial: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
   try {
+    const token = event.headers.Authorization?.split(' ')[1];
+    validarToken(token);
 
     const limit = parseInt(event.queryStringParameters?.limit ?? '10');
     const lastKey = event.queryStringParameters?.lastKey;
@@ -37,9 +40,10 @@ export const historial: APIGatewayProxyHandler = async (event): Promise<APIGatew
     };
   } catch (error) {
     console.error('Error al obtener historial:', error);
+    const message = error instanceof Error ? error.message : 'Error al obtener historial';
     return {
       statusCode: STATUS_CODE.INTERNAL_SERVER_ERROR,
-      body: JSON.stringify({ message: 'Error al obtener el historial' }),
+      body: JSON.stringify({ message }),
     };
   }
 };
